@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-
+#TODO implement unimplemented methods
 class InstagramPic:
     def __init__(self,path,likes,description,tags):
         self.path = path
