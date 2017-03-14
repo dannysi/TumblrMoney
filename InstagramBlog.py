@@ -5,7 +5,18 @@ class InstagramPic:
     def __init__(self,path,likes,description,tags):
         self.path = path
         self.likes = likes
-        self.description,self.tags = self.extractDescription(description)
+        self.description = self.description
+        self.tags = self.tags
+
+    @classmethod
+    def fromInstagramApi(cls,dic):
+        #TODO parse dictionary we get from the instagram api per pic
+        path = ""
+        likes = ""
+        description = ""
+        tags = ""
+        return cls(path,likes,description,tags)
+
     def extractDescription(self,desc):
         pass
 
