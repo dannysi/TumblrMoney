@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>React - Template</title>
+        <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+        <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+</head>
+<body>
+
+    <div id="Main"></div>
+    <script type="text/babel">console.log("kaki");</script>
+    <script type="text/babel">
+        console.log("file start");
+        var MyImg = React.createClass({
+            render: function() {
+                console.log("render func");
+                //return (<h2>kaki</h2>);
+                return (<div><img src = {this.props.src} height = "400" width = "300"/><br/></div>);
+            }
+        });
+
+        console.log("render func");
+        ReactDOM.render(
+            <div>
+            <MyImg src = "https://scontent.cdninstagram.com/t51.2885-15/sh0.08/e35/p640x640/17334026_201734506980848_637753543389872128_n.jpg" />
+            <MyImg src = "https://scontent.cdninstagram.com/t51.2885-15/sh0.08/e35/p640x640/17334026_201734506980848_637753543389872128_n.jpg" />
+
+             </div>,
+            document.getElementById("Main")
+        );
+        console.log("DONE");
+
+    </script>
+    <script type="text/babel">console.log("kaki2");</script>
+</body>
+</html>
