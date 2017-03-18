@@ -11,29 +11,66 @@
 <body>
 
     <div id="Main"></div>
-    <script type="text/babel">console.log("kaki");</script>
     <script type="text/babel">
-        console.log("file start");
-        var MyImg = React.createClass({
-            render: function() {
-                console.log("render func");
-                //return (<h2>kaki</h2>);
-                return (<div><img src = {this.props.src} height = "400" width = "300"/><br/></div>);
+          function detectmob() {
+            if( navigator.userAgent.match(/Android/i)
+            || navigator.userAgent.match(/webOS/i)
+            || navigator.userAgent.match(/iPhone/i)
+            || navigator.userAgent.match(/iPad/i)
+            || navigator.userAgent.match(/iPod/i)
+            || navigator.userAgent.match(/BlackBerry/i)
+            || navigator.userAgent.match(/Windows Phone/i)) {
+              return true;
+            }else {
+              return false;
             }
+          }
+        var MyImg = React.createClass({
+          getInitialState : function() {
+            return {}
+          },
+          winner: function() {
+              console.log(this.props.img_key)
+              this.props.shout_cb(this.props.img_key)
+          },
+          render: function() {
+              if (detectmob())
+                return (<div><center><br/><img onClick={this.winner} src = {this.props.src} width = "320"/></center><br/></div>);
+              else
+                return (<div><center><br/><img onClick={this.winner} src = {this.props.src} /></center><br/></div>);
+          }
         });
 
-        console.log("render func");
+        var AllImgs = React.createClass({
+          getInitialState : function() {
+          return {
+            pics : []
+            };
+          },
+          populatePics: function() {
+            this.setState({pics : ["https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/17267647_1326052047474942_4920724390141755392_n.jpg",
+                               "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/17076092_1666303576718963_544595999092375552_n.jpg",
+                               "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/17125944_145119349341047_6918754888616771584_n.jpg"]});
+          },
+          populateMapCb: function(path,i) {return <div> <MyImg img_key={i} src={path} shout_cb = {this.boardShoutPicsCb}/> </div>},
+          boardShoutPicsCb : function(i) {console.log("Board:"+i)},
+          render: function() { return (
+            <div>
+            {
+              this.state.pics.map(this.populateMapCb)
+            }
+              <button onClick={this.populatePics}>Populate</button>
+            </div>
+          ); }
+        });
+
         ReactDOM.render(
             <div>
-            <MyImg src = "https://scontent.cdninstagram.com/t51.2885-15/sh0.08/e35/p640x640/17334026_201734506980848_637753543389872128_n.jpg" />
-            <MyImg src = "https://scontent.cdninstagram.com/t51.2885-15/sh0.08/e35/p640x640/17334026_201734506980848_637753543389872128_n.jpg" />
-
+            <AllImgs/>
              </div>,
             document.getElementById("Main")
         );
-        console.log("DONE");
 
     </script>
-    <script type="text/babel">console.log("kaki2");</script>
 </body>
 </html>
