@@ -51,3 +51,4 @@ TumblrDefs.py
 __pycache__/TumblrBlog.cpython-34.pyc
 .vscode/launch.json
 .vscode/settings.json
+*.pyc
