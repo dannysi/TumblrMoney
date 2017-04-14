@@ -17,23 +17,50 @@ class FuncThread(threading.Thread):
             self.func(*self.args)
 
 
-class Synchronizer:
+class Task(object):
+    def __init__(self,function,args,startTime,repeatEvery,runInThread=False):
+        self.function = function
+        self.args = args
+        self.startTime = startTime
+        self.repeatEvery = repeatEvery
+        self.runInThread = runInThread
+    def __cmp__(self,other):
+        return self.startTime.timestamp() - other.startTime.timestamp()
+    def __lt__(self,other):
+        if other.startTime.timestamp() - self.startTime.timestamp()>0:return True
+        else: return False
+    def accend(self):
+        self.startTime += self.repeatEvery
+
+
+class Synchronizer(object):
     q = queue.PriorityQueue()
     cond = threading.Condition()
-    def __init__(self):
-        pass 
-    def sign(self,function,args,startTime,repeatEvery):
-        self.q.put((startTime,function,args,repeatEvery))
-        self.cond.notify_all()
+
+    def sign(self,task):
+        self.q.put(task)
+#        self.cond.notify_all()
 
     def run(self):
         while True:
-            while self.q.queue[0][0]<datetime.datetime.now():
+            while self.q.queue[0].startTime<=datetime.datetime.now():
                 task = self.q.get()
-                thread = FuncThread(task[1],task[2])
-                thread.start()
-                newTask = (task[0]+task[3],task[1],task[2],task[3])
-                self.q.put(newTask)
-            self.cond.wait(self.q.queue[0][0]-datetime.datetime.now())
+                thread = FuncThread(task.function,task.args)
+                if task.runInThread: thread.start()
+                else : thread.run()
+                task.accend()
+                self.q.put(task)
+            #print("current",datetime.datetime.now(),"next",self.q.queue[0].startTime)
+            if self.q.queue[0].startTime>datetime.datetime.now():
+                time.sleep((self.q.queue[0].startTime-datetime.datetime.now()).seconds+1)
+ #               self.cond.wait(self.q.queue[0][0]-datetime.datetime.now())
 
-
+def test():
+    def foo():
+        print("XXX",datetime.datetime.now())
+    def goo():
+        print("YYY",datetime.datetime.now())
+    sync = Synchronizer()
+    sync.sign(Task(foo,None,datetime.datetime.now(),datetime.timedelta(seconds=5),False))
+    sync.sign(Task(goo,None,datetime.datetime.now(),datetime.timedelta(seconds=3),False))
+    sync.run()
