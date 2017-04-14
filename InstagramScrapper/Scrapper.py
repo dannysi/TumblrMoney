@@ -15,17 +15,19 @@ import requests
 import tqdm
 
 from InstagramScrapper.constants import *
+from TumblrDefs import INSTAGRAM_PASS, INSTAGRAM_USERNAME
 
 warnings.filterwarnings('ignore')
 
+#TODO find a way to scrap media with multiple images
 class InstagramScraper(object):
 
     """InstagramScraper scrapes and downloads an instagram user's photos and videos"""
 
-    def __init__(self, usernames, login_user=None, login_pass=None, quiet=False, max=0, retain_username=False):
-        self.usernames = usernames if isinstance(usernames, list) else [usernames]
-        self.login_user = login_user
-        self.login_pass = login_pass
+    def __init__(self, username, login_user=None, login_pass=None, quiet=False, max=0, retain_username=False):
+        self.username = username
+        self.login_user = INSTAGRAM_USERNAME
+        self.login_pass = INSTAGRAM_PASS
         self.retain_username = retain_username
 
         # Controls the graphical output of tqdm
@@ -70,22 +72,18 @@ class InstagramScraper(object):
 
     def scrape(self):
         """Crawls through and downloads user's media"""
-        scrapedItems = dict()
-        scrapedMedia = dict()
-        for username in self.usernames:
-            scrapedItems[username] = []
-            scrapedMedia[username] = []
-            # Get the user metadata.
-            user = self.fetch_user(username)
+        scrapedItems = []
+        # Get the user metadata.
+        user = self.fetch_user(self.username)
 
-            if user:
-                if self.logged_in:
-                    # Get the user's stories.
-                    stories = self.fetch_stories(user['id'])
-                    # Downloads the user's stories and sends it to the executor.
-                    scrapedItems[username] = [item for item in stories]
-            # Crawls the media and sends it to the executor.
-            scrapedMedia = [item for item in self.media_gen(username)]
+        if user:
+            if self.logged_in:
+                # Get the user's stories.
+                stories = self.fetch_stories(user['id'])
+                # Downloads the user's stories and sends it to the executor.
+                scrapedItems = [item for item in stories]
+        # Crawls the media and sends it to the executor.
+        scrapedMedia = [item for item in self.media_gen(self.username)]
         self.logout()
         return scrapedItems,scrapedMedia
 
@@ -113,6 +111,18 @@ class InstagramScraper(object):
         if resp.status_code == 200 and 'items' in retval and len(retval['items']) > 0:
             return [item for item in retval['items']]
         return []
+
+    def getBatchOfPhotos(self,size):
+        count = 0
+        batch = []
+        for item in self.media_gen(self.username):
+            batch += [item]
+            count += 1
+            if count == size:
+                yield batch
+                batch = []
+                count = 0
+        yield batch
 
     def media_gen(self, username):
         """Generator of all user's media"""
@@ -149,26 +159,6 @@ class InstagramScraper(object):
             return media
         else:
             raise ValueError('User {0} does not exist'.format(username))
-
-    @staticmethod
-    def parse_file_usernames(usernames_file):
-        '''Parses a file containing a list of usernames.'''
-        users = []
-
-        try:
-            with open(usernames_file) as user_file:
-                for line in user_file.readlines():
-                    # Find all usernames delimited by ,; or whitespace
-                    users += re.findall(r'[^,;\s]+', line)
-        except IOError as err:
-            raise ValueError('File not found ' + err)
-
-        return users
-
-    @staticmethod
-    def parse_str_usernames(usernames_str):
-        '''Parse the username input as a delimited string of users.'''
-        return re.findall(r'[^,;\s]+', usernames_str)
 
 def main():
     max = 0
@@ -209,5 +199,9 @@ def main():
     scraper.scrapeWithoutDownload()
 
 if __name__ == '__main__':
-    scrapedItems, scrapedMedia = InstagramScraper("tal_rzr").scrape()
-    print(scrapedItems)
+    for item in InstagramScraper("fox_model_israel").getBatch(10):
+        print(item)
+        break
+
+    #scrapedItems, scrapedMedia = InstagramScraper("fox_model_israel").scrape()
+    #print(scrapedMedia["fox_model_israel"][2])
