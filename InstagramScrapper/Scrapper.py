@@ -2,20 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import errno
 import json
-import logging.config
-import os
-import re
-import time
 import warnings
 
-import concurrent.futures
 import requests
-import tqdm
 
+from InstagramScrapper.ScrapperDefs import INSTAGRAM_USERNAME, INSTAGRAM_PASS
 from InstagramScrapper.constants import *
-from TumblrDefs import INSTAGRAM_PASS, INSTAGRAM_USERNAME
 
 warnings.filterwarnings('ignore')
 
@@ -56,6 +49,7 @@ class InstagramScraper(object):
         if login.status_code == 200 and json.loads(login.text)['authenticated']:
             self.logged_in = True
         else:
+            print(login)
             print('Login failed for ' + self.login_user)
             raise ValueError('Login failed for ' + self.login_user)
 

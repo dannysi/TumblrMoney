@@ -51,8 +51,10 @@ class Synchronizer(object):
                 task.accend()
                 self.q.put(task)
             #print("current",datetime.datetime.now(),"next",self.q.queue[0].startTime)
+            #TODO max 2 hours
             if self.q.queue[0].startTime>datetime.datetime.now():
-                time.sleep((self.q.queue[0].startTime-datetime.datetime.now()).seconds+1)
+                print("-I- Next task in ",self.q.queue[0].startTime)
+                time.sleep(min((self.q.queue[0].startTime-datetime.datetime.now()).seconds+1,2*60*60))
  #               self.cond.wait(self.q.queue[0][0]-datetime.datetime.now())
 
 def test():
